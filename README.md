@@ -22,6 +22,11 @@ The intended roles are:
 - Codex CLI: independent reviewer or alternate implementation attempt
 - Antigravity CLI (`agy`): optional external/deep research agent
 
+Cost/routing assumption for this harness:
+
+- Claude Code, Codex CLI, and Antigravity CLI are subscription/plan-limit backed for the owner, so prefer them for suitable coding, review, and research tasks before spending per-token LiteLLM API keys.
+- BaishanAI GPT and DeepSeek through LiteLLM are per-token API spend. Use BaishanAI for premium reasoning/orchestration and DeepSeek for cheaper fast coding/orchestration, but do not default to them for large work when a suitable subscription-backed CLI is available.
+
 The harness intentionally stays small. It does not install hooks, background daemons, package dependencies, or destructive automation.
 
 ## Quick start: apply to a new project
@@ -126,11 +131,12 @@ Or run the installer from any location using the absolute path:
 For important changes:
 
 1. Hermes inspects the repo and writes or updates a short plan in `process/plans/`.
-2. If external knowledge is needed, Hermes may use Antigravity CLI (`agy`) to create a research brief in `process/research/`.
-3. Claude Code implements the change.
-4. Hermes checks `git status`, `git diff`, and runs verification.
-5. Codex reviews the diff independently.
-6. Hermes applies accepted fixes and reports final status.
+2. Hermes checks whether the suitable subscription-backed CLI is available/authenticated before spending per-token LiteLLM API calls for large work.
+3. If external knowledge is needed, Hermes may use Antigravity CLI (`agy`) to create a research brief in `process/research/`.
+4. Claude Code implements the change, or Codex implements when a second independent attempt is more useful.
+5. Hermes checks `git status`, `git diff`, and runs verification.
+6. Codex reviews the diff independently when it was not the implementer; otherwise use Claude Code or Hermes review.
+7. Hermes applies accepted fixes and reports final status.
 
 For small changes, keep it simple: inspect, edit, run the narrowest relevant check, summarize.
 

@@ -8,11 +8,14 @@ This project uses multiple AI coding agents. This file defines routing rules and
 
 Role: orchestrator and verifier.
 
+Cost/routing rule for this setup: prefer subscription-backed coding/research CLIs when they fit the task before spending per-token LiteLLM API keys. Claude Code, Codex CLI, and Antigravity CLI are paid through the owner's subscriptions/plan limits; BaishanAI and DeepSeek via LiteLLM are billed per token.
+
 Use Hermes for:
 - Breaking down tasks
 - Reading and editing small files directly
 - Running shell commands and tests
 - Coordinating Claude Code / Codex CLI / Antigravity CLI
+- Checking CLI availability and choosing the cheapest suitable route
 - Comparing independent reviews
 - Final user-facing summaries
 
@@ -72,7 +75,7 @@ Good uses:
 - External documentation and breaking-change synthesis
 - Independent strategic opinions before writing an implementation plan
 
-Avoid using `agy` for routine implementation tasks, small code edits, or default review. It can be token-expensive and should not be part of every workflow.
+Avoid using `agy` for routine small code edits, but do not avoid it purely for token-cost reasons when it fits the job: in this setup Antigravity CLI is paid through the owner's subscription/plan limits, while BaishanAI/DeepSeek LiteLLM calls are per-token API spend.
 
 Use only if `agy` is installed and authenticated.
 

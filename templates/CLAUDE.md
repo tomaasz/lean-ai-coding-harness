@@ -79,6 +79,12 @@ Fill in after scanning the repo:
 
 ## AI Agent Routing
 
+Cost/routing rule for this setup:
+
+- Prefer subscription-backed CLIs when they fit the task: Claude Code, Codex CLI, and Antigravity CLI are paid through the owner's subscriptions/plan limits.
+- Treat BaishanAI GPT and DeepSeek via LiteLLM as per-token API spend. Use them deliberately: BaishanAI for premium reasoning/orchestration, DeepSeek for cheaper fast coding/orchestration, not as the automatic answer to every repo task.
+- Before large coding/research/review work, check whether the relevant CLI is installed/authenticated and prefer it when suitable.
+
 - Use Hermes for orchestration, verification, filesystem edits, and final reporting.
 - Use Claude Code for primary implementation tasks, complex refactors, and multi-file reasoning.
 - Use Codex CLI for independent review, alternate implementation attempts, and second opinions.
