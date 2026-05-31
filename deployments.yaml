@@ -28,6 +28,7 @@ projects:
       - .codex/agents/fixer.md
       - .codex/agents/reviewer.md
       - process/decisions.md
+      - process/routing.md
       - process/plans/README.md
       - process/research/README.md
       - process/reviews/README.md
@@ -52,6 +53,7 @@ projects:
       - .codex/agents/fixer.md
       - .codex/agents/reviewer.md
       - process/decisions.md
+      - process/routing.md
       - process/plans/README.md
       - process/research/README.md
       - process/reviews/README.md
@@ -76,6 +78,7 @@ projects:
       - .codex/agents/fixer.md
       - .codex/agents/reviewer.md
       - process/decisions.md
+      - process/routing.md
       - process/plans/README.md
       - process/research/README.md
       - process/reviews/README.md
@@ -100,6 +103,7 @@ projects:
       - .codex/agents/fixer.md
       - .codex/agents/reviewer.md
       - process/decisions.md
+      - process/routing.md
       - process/plans/README.md
       - process/research/README.md
       - process/reviews/README.md
@@ -124,6 +128,7 @@ projects:
       - .codex/agents/fixer.md
       - .codex/agents/reviewer.md
       - process/decisions.md
+      - process/routing.md
       - process/plans/README.md
       - process/research/README.md
       - process/reviews/README.md

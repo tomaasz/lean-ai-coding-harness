@@ -9,7 +9,8 @@ It gives you the useful parts of larger vibe-coding frameworks without installin
 - `.claude/agents/` focused Claude Code agents
 - `.claude/commands/` simple plan/review commands
 - `.codex/agents/` lightweight Codex role prompts
-- `process/` durable project context, decisions, plans, research briefs, reviews
+- `process/` durable project context, decisions, route policy, plans, research briefs, reviews
+- `bin/check-agent-routes` availability check for subscription CLI lanes and LiteLLM routes
 - `deployments.yaml` registry of projects where this harness is installed
 - `bin/sync-deployments.py` conservative template sync for registered projects
 - `bin/install-sync-hook.sh` optional git post-merge hook that runs deployment sync after harness updates
@@ -98,6 +99,40 @@ Overwrite existing harness files after creating timestamped backups under `.lean
 ```
 
 Use `--force` only when you intentionally want to replace existing files. Without `--force`, existing files are skipped.
+
+## Routing policy and availability check
+
+Each installed project includes `process/routing.md`, a lightweight policy for choosing the cheapest suitable agent lane before spending per-token API budget.
+
+Default priority:
+
+1. Subscription-backed CLIs when suitable: Claude Code (`claude`), Codex CLI (`codex`), Antigravity CLI (`agy`).
+2. Per-token cheap workers: DeepSeek via LiteLLM.
+3. Per-token premium only with an explicit reason: BaishanAI GPT via LiteLLM.
+
+For non-trivial work, record a short route decision in the plan, review, or final report:
+
+```text
+Route decision:
+- task_type: code_implementation
+- route: claude-cli
+- cost_class: subscription
+- reason: multi-file implementation; Claude Code available under subscription
+- fallback: deepseek-v4-pro
+```
+
+Check available lanes from the harness repo:
+
+```bash
+./bin/check-agent-routes
+```
+
+Environment overrides:
+
+```bash
+LITELLM_BASE_URL=http://100.87.39.48:4000/v1 ./bin/check-agent-routes
+CHECK_AGENT_ROUTE_MODELS=gpt-5.5,deepseek-v4-pro,deepseek-v4-flash ./bin/check-agent-routes
+```
 
 ## Deployment registry and sync
 
@@ -265,6 +300,7 @@ AGENTS.md
 .codex/agents/reviewer.md
 process/context.md
 process/decisions.md
+process/routing.md
 process/plans/README.md
 process/research/README.md
 process/reviews/README.md

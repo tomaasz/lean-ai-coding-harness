@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+"""Check availability of local AI-agent routing lanes.
+
+This is a lightweight advisory check for the lean AI coding harness. It does not spend meaningful tokens: LiteLLM checks use a tiny max_tokens request when OPENAI_API_KEY is available.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import shutil
+import subprocess
+import sys
+from dataclasses import dataclass
+from typing import Iterable
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
+
+DEFAULT_LITELLM_BASE_URL = "http://100.87.39.48:4000/v1"
+DEFAULT_MODELS = ["gpt-5.5", "deepseek-v4-pro", "deepseek-v4-flash"]
+
+
+@dataclass
+class CheckResult:
+    name: str
+    route: str
+    status: str
+    detail: str
+    cost_class: str
+
+
+def run_cmd(args: list[str], timeout: int = 12) -> tuple[int, str]:
+    try:
+        proc = subprocess.run(
+            args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
+        return proc.returncode, (proc.stdout or "").strip()
+    except subprocess.TimeoutExpired:
+        return 124, "timed out"
+    except Exception as exc:  # pragma: no cover - defensive CLI wrapper
+        return 1, f"{type(exc).__name__}: {exc}"
+
+
+def first_line(text: str) -> str:
+    return next((line.strip() for line in text.splitlines() if line.strip()), "")
+
+
+def check_cli(binary: str, route: str, version_args: list[str] | None = None) -> CheckResult:
+    path = shutil.which(binary)
+    if not path:
+        return CheckResult(binary, route, "missing", "not found in PATH", "subscription")
+    args = [binary] + (version_args or ["--version"])
+    code, out = run_cmd(args)
+    detail = first_line(out) or path
+    status = "ok" if code == 0 else "warn"
+    if code == 124:
+        status = "warn"
+        detail = "version check timed out; binary exists"
+    return CheckResult(binary, route, status, detail, "subscription")
+
+
+def get_env_key() -> str | None:
+    for key in ("OPENAI_API_KEY", "LITELLM_API_KEY"):
+        val = os.getenv(key)
+        if val:
+            return val
+    return None
+
+
+def check_litellm_model(model: str, base_url: str, api_key: str | None) -> CheckResult:
+    cost_class = "per-token-premium" if model.startswith("gpt-") else "per-token-cheap"
+    route = "baishan-gpt" if model.startswith("gpt-") else model
+    if not api_key:
+        return CheckResult(model, route, "skipped", "missing OPENAI_API_KEY/LITELLM_API_KEY", cost_class)
+
+    url = base_url.rstrip("/") + "/chat/completions"
+    payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": "ping"}],
+        "max_tokens": 1,
+        "temperature": 0,
+    }
+    req = Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urlopen(req, timeout=20) as resp:
+            body = resp.read(512).decode("utf-8", errors="replace")
+        detail = f"HTTP OK from {url}"
+        if body:
+            detail += f" ({len(body)} bytes)"
+        return CheckResult(model, route, "ok", detail, cost_class)
+    except HTTPError as exc:
+        detail = f"HTTP {exc.code} from {url}"
+        try:
+            err_body = exc.read(300).decode("utf-8", errors="replace").replace("\n", " ")
+            if err_body:
+                detail += f": {err_body}"
+        except Exception:
+            pass
+        return CheckResult(model, route, "fail", detail, cost_class)
+    except URLError as exc:
+        return CheckResult(model, route, "fail", f"URL error: {exc.reason}", cost_class)
+    except TimeoutError:
+        return CheckResult(model, route, "fail", "request timed out", cost_class)
+    except Exception as exc:  # pragma: no cover - defensive network wrapper
+        return CheckResult(model, route, "fail", f"{type(exc).__name__}: {exc}", cost_class)
+
+
+def parse_models(value: str | None) -> list[str]:
+    if not value:
+        return DEFAULT_MODELS
+    return [part.strip() for part in value.split(",") if part.strip()]
+
+
+def print_table(results: Iterable[CheckResult]) -> None:
+    rows = list(results)
+    headers = ["route", "name", "cost", "status", "detail"]
+    matrix = [[r.route, r.name, r.cost_class, r.status, r.detail] for r in rows]
+    widths = [len(h) for h in headers]
+    for row in matrix:
+        for i, col in enumerate(row):
+            widths[i] = min(max(widths[i], len(col)), 80)
+
+    def fmt(row: list[str]) -> str:
+        out = []
+        for i, col in enumerate(row):
+            text = col if len(col) <= widths[i] else col[: widths[i] - 1] + "…"
+            out.append(text.ljust(widths[i]))
+        return "  ".join(out)
+
+    print(fmt(headers))
+    print(fmt(["-" * w for w in widths]))
+    for row in matrix:
+        print(fmt(row))
+
+
+def main() -> int:
+    base_url = os.getenv("LITELLM_BASE_URL", DEFAULT_LITELLM_BASE_URL)
+    models = parse_models(os.getenv("CHECK_AGENT_ROUTE_MODELS"))
+    api_key = get_env_key()
+
+    results: list[CheckResult] = [
+        check_cli("claude", "claude-cli"),
+        check_cli("codex", "codex-cli"),
+        check_cli("agy", "agy-cli"),
+    ]
+    results.extend(check_litellm_model(model, base_url, api_key) for model in models)
+
+    print("Lean AI coding harness route availability")
+    print(f"LiteLLM base URL: {base_url}")
+    print_table(results)
+
+    print("\nRecommended default order:")
+    print("1. subscription lanes when suitable: claude-cli, codex-cli, agy-cli")
+    print("2. per-token cheap worker lanes: deepseek-v4-pro / deepseek-v4-flash")
+    print("3. per-token premium lane only with explicit reason: baishan-gpt")
+
+    return 1 if any(r.status == "fail" for r in results) else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

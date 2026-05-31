@@ -120,6 +120,7 @@ else
   echo "Next steps:"
   echo "  1. Edit CLAUDE.md and process/context.md with project-specific facts."
   echo "  2. Run: git status --short"
-  echo "  3. Use process/research/ for durable agy/external research briefs when needed."
-  echo "  4. Review generated files before committing."
+  echo "  3. Use process/routing.md for route decisions and ./bin/check-agent-routes from the harness repo to verify available lanes."
+  echo "  4. Use process/research/ for durable agy/external research briefs when needed."
+  echo "  5. Review generated files before committing."
 fi
