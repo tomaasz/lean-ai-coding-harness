@@ -10,6 +10,9 @@ It gives you the useful parts of larger vibe-coding frameworks without installin
 - `.claude/commands/` simple plan/review commands
 - `.codex/agents/` lightweight Codex role prompts
 - `process/` durable project context, decisions, plans, research briefs, reviews
+- `deployments.yaml` registry of projects where this harness is installed
+- `bin/sync-deployments.py` conservative template sync for registered projects
+- `bin/install-sync-hook.sh` optional git post-merge hook that runs deployment sync after harness updates
 
 ## What this harness is for
 
@@ -66,6 +69,8 @@ git add CLAUDE.md AGENTS.md .claude .codex process
 git commit -m "chore: add lean AI coding harness"
 ```
 
+If this is one of your recurring local projects, add it to `deployments.yaml` in this repository so future harness updates can be audited and synchronized.
+
 ## Install options
 
 Dry run:
@@ -93,6 +98,60 @@ Overwrite existing harness files after creating timestamped backups under `.lean
 ```
 
 Use `--force` only when you intentionally want to replace existing files. Without `--force`, existing files are skipped.
+
+## Deployment registry and sync
+
+This repository tracks known installs in `deployments.yaml`.
+
+Current registered projects:
+
+- `/home/tomaasz/cavi`
+- `/home/tomaasz/akta-trans`
+- `/home/tomaasz/broker`
+- `/home/tomaasz/akta-ocr`
+- `/home/tomaasz/akta-gotova`
+
+Each registry entry separates:
+
+- `project_files` — files expected to contain project-specific instructions, e.g. `CLAUDE.md`, `AGENTS.md`, `process/context.md`. Sync preserves these and reports their presence; it does not overwrite them.
+- `managed_files` — generic harness support files that can safely track templates, e.g. `.claude/agents/*`, `.codex/agents/*`, `process/plans/README.md`, `process/research/README.md`, `process/reviews/README.md`.
+
+After updating templates in this repository, check all registered installs:
+
+```bash
+./bin/sync-deployments.py --dry-run
+```
+
+Apply safe managed-file updates:
+
+```bash
+./bin/sync-deployments.py
+```
+
+Sync one project only:
+
+```bash
+./bin/sync-deployments.py --project cavi --dry-run
+./bin/sync-deployments.py --project cavi
+```
+
+Conservative behavior:
+
+- Project-specific files are never overwritten by the sync script.
+- Managed files are updated only from `templates/`.
+- If a managed file is dirty in git, sync skips it unless you pass `--allow-dirty` after manual review.
+- Every overwrite creates a timestamped backup under the target project's `.lean-ai-harness-backup/`.
+- Use dry-run first and inspect `git status --short` / `git diff` in target projects after sync.
+
+For changes that affect `CLAUDE.md`, `AGENTS.md`, or `process/context.md`, manually merge the relevant section into each project because these files intentionally contain local rules.
+
+Optional automatic sync after this harness is updated by git pull/merge:
+
+```bash
+./bin/install-sync-hook.sh
+```
+
+The hook runs `./bin/sync-deployments.py` after a successful merge. It is deliberately non-blocking (`|| true`) so a dirty target project cannot break a harness update; review its output and then inspect target project diffs.
 
 ## Installing from GitHub
 

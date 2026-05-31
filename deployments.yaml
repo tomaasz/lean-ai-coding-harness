@@ -1,0 +1,129 @@
+# Lean AI Coding Harness deployments
+
+# Each entry tracks a project where this harness has been installed or intentionally maintained.
+# `sync_mode` controls `bin/sync-deployments.py` behavior:
+#   managed   = safe template files may be copied when unchanged/owned by harness; project files are patched only by markers or reported for manual merge.
+#   manual    = listed for visibility; sync reports status but does not write without explicit --include-manual.
+# `project_files` are expected to contain project-specific content and must not be force-overwritten by sync.
+# `managed_files` are generic harness support files that can be synchronized from templates.
+
+projects:
+  - name: cavi
+    path: /home/tomaasz/cavi
+    sync_mode: managed
+    installed: '2026-05-29'
+    notes: Product-specific AGENTS.md/CLAUDE.md; preserve resume-builder rules and Cavi conventions.
+    project_files:
+      - CLAUDE.md
+      - AGENTS.md
+      - process/context.md
+    managed_files:
+      - .claude/agents/architect.md
+      - .claude/agents/code-reviewer.md
+      - .claude/agents/debugger.md
+      - .claude/agents/security-reviewer.md
+      - .claude/agents/test-writer.md
+      - .claude/commands/plan.md
+      - .claude/commands/review.md
+      - .codex/agents/fixer.md
+      - .codex/agents/reviewer.md
+      - process/decisions.md
+      - process/plans/README.md
+      - process/research/README.md
+      - process/reviews/README.md
+
+  - name: akta-trans
+    path: /home/tomaasz/akta-trans
+    sync_mode: managed
+    installed: '2026-05-29'
+    notes: Preserve GitNexus mandatory impact-analysis rules and migration context.
+    project_files:
+      - CLAUDE.md
+      - AGENTS.md
+      - process/context.md
+    managed_files:
+      - .claude/agents/architect.md
+      - .claude/agents/code-reviewer.md
+      - .claude/agents/debugger.md
+      - .claude/agents/security-reviewer.md
+      - .claude/agents/test-writer.md
+      - .claude/commands/plan.md
+      - .claude/commands/review.md
+      - .codex/agents/fixer.md
+      - .codex/agents/reviewer.md
+      - process/decisions.md
+      - process/plans/README.md
+      - process/research/README.md
+      - process/reviews/README.md
+
+  - name: broker
+    path: /home/tomaasz/broker
+    sync_mode: managed
+    installed: '2026-05-31'
+    notes: Gemini Profile Broker; preserve runtime paths and broker-specific commands in CLAUDE.md/process context.
+    project_files:
+      - CLAUDE.md
+      - AGENTS.md
+      - process/context.md
+    managed_files:
+      - .claude/agents/architect.md
+      - .claude/agents/code-reviewer.md
+      - .claude/agents/debugger.md
+      - .claude/agents/security-reviewer.md
+      - .claude/agents/test-writer.md
+      - .claude/commands/plan.md
+      - .claude/commands/review.md
+      - .codex/agents/fixer.md
+      - .codex/agents/reviewer.md
+      - process/decisions.md
+      - process/plans/README.md
+      - process/research/README.md
+      - process/reviews/README.md
+
+  - name: akta-ocr
+    path: /home/tomaasz/akta-ocr
+    sync_mode: managed
+    installed: '2026-05-31'
+    notes: Preserve OCR dashboard guardrails, runtime cache rules, and gemini_engine stale-response guard.
+    project_files:
+      - CLAUDE.md
+      - AGENTS.md
+      - process/context.md
+    managed_files:
+      - .claude/agents/architect.md
+      - .claude/agents/code-reviewer.md
+      - .claude/agents/debugger.md
+      - .claude/agents/security-reviewer.md
+      - .claude/agents/test-writer.md
+      - .claude/commands/plan.md
+      - .claude/commands/review.md
+      - .codex/agents/fixer.md
+      - .codex/agents/reviewer.md
+      - process/decisions.md
+      - process/plans/README.md
+      - process/research/README.md
+      - process/reviews/README.md
+
+  - name: akta-gotova
+    path: /home/tomaasz/akta-gotova
+    sync_mode: managed
+    installed: '2026-05-31'
+    notes: Public akta.gotova.pl portal; preserve shared DB read-only rules and Stage 3 processor context.
+    project_files:
+      - CLAUDE.md
+      - AGENTS.md
+      - process/context.md
+    managed_files:
+      - .claude/agents/architect.md
+      - .claude/agents/code-reviewer.md
+      - .claude/agents/debugger.md
+      - .claude/agents/security-reviewer.md
+      - .claude/agents/test-writer.md
+      - .claude/commands/plan.md
+      - .claude/commands/review.md
+      - .codex/agents/fixer.md
+      - .codex/agents/reviewer.md
+      - process/decisions.md
+      - process/plans/README.md
+      - process/research/README.md
+      - process/reviews/README.md
