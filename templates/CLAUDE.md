@@ -82,6 +82,7 @@ Fill in after scanning the repo:
 Cost/routing rule for this setup:
 
 - Prefer subscription-backed CLIs when they fit the task: Claude Code, Codex CLI, and Antigravity CLI are paid through the owner's subscriptions/plan limits.
+- Temporary availability override: the owner's Claude weekly limit is currently exhausted until the next Wednesday at 17:00. Until the owner says the limit has reset, treat Claude Code as unavailable even if the `claude` binary exists. Prefer Codex CLI for implementation/review and `agy` for research before falling back to per-token routes.
 - Treat BaishanAI GPT and DeepSeek via LiteLLM as per-token API spend. Use them deliberately: BaishanAI for premium reasoning/orchestration, DeepSeek for cheaper fast coding/orchestration, not as the automatic answer to every repo task.
 - Before large coding/research/review work, check whether the relevant CLI is installed/authenticated and prefer it when suitable.
 

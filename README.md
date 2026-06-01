@@ -104,9 +104,11 @@ Use `--force` only when you intentionally want to replace existing files. Withou
 
 Each installed project includes `process/routing.md`, a lightweight policy for choosing the cheapest suitable agent lane before spending per-token API budget.
 
+Temporary owner overrides belong in `process/routing.md` when a subscription CLI is operationally unavailable because of weekly/plan limits. Current override: the owner's Claude weekly limit is exhausted until the next Wednesday at 17:00, so registered projects should treat `claude-cli` as unavailable until the owner confirms reset and should prefer Codex CLI / Antigravity CLI / DeepSeek routes as appropriate.
+
 Default priority:
 
-1. Subscription-backed CLIs when suitable: Claude Code (`claude`), Codex CLI (`codex`), Antigravity CLI (`agy`).
+1. Subscription-backed CLIs when suitable and available: Codex CLI (`codex`), Antigravity CLI (`agy`), and Claude Code (`claude`) after its weekly limit resets.
 2. Per-token cheap workers: DeepSeek via LiteLLM.
 3. Per-token premium only with an explicit reason: BaishanAI GPT via LiteLLM.
 
@@ -115,9 +117,9 @@ For non-trivial work, record a short route decision in the plan, review, or fina
 ```text
 Route decision:
 - task_type: code_implementation
-- route: claude-cli
+- route: codex-cli
 - cost_class: subscription
-- reason: multi-file implementation; Claude Code available under subscription
+- reason: multi-file implementation; Claude Code temporarily unavailable due to weekly limit
 - fallback: deepseek-v4-pro
 ```
 

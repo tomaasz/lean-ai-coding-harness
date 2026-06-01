@@ -15,11 +15,15 @@ This file documents the lightweight routing policy for AI-agent work in this rep
 
 ## Default route table
 
+### Temporary owner availability override
+
+The owner's Claude weekly limit is currently exhausted until the next Wednesday at 17:00. Until the owner says that limit has reset, treat `claude-cli` as unavailable even if the binary exists and route Claude-preferred work to `codex-cli`, `agy-cli` for research, or DeepSeek/BaishanAI according to the table below. Do not burn a task attempt on Claude Code during this window unless the owner explicitly forces that route.
+
 | Task type | Preferred route | Fallback | Notes |
 |---|---|---|---|
-| `code_implementation` | `claude-cli` or `codex-cli` | `deepseek-v4-pro` | Use subscription CLI for multi-file edits when available. |
+| `code_implementation` | `codex-cli`; normally `claude-cli` or `codex-cli` | `deepseek-v4-pro` | Use subscription CLI for multi-file edits when available; skip Claude while the temporary limit override is active. |
 | `code_review` | `codex-cli` | `claude-cli`, then `deepseek-v4-pro` | Keep reviews independent from the implementer where possible. |
-| `debugging` | `claude-cli` | `codex-cli`, then `deepseek-v4-pro` | For small fixes Hermes may edit directly after inspection. |
+| `debugging` | `codex-cli` | `deepseek-v4-pro`, then `claude-cli` after reset | For small fixes Hermes may edit directly after inspection; skip Claude while the temporary limit override is active. |
 | `repo_research` | `hermes-local` | `claude-cli` or `codex-cli` | Prefer local file inspection before external calls. |
 | `external_research` | `agy-cli` | `deepseek-v4-flash`, then premium if strategic | Do not send secrets or unnecessary proprietary data to external research lanes. |
 | `devops` | `hermes-local` + `deepseek-v4-flash/pro` | `claude-cli` | Use premium only for risky architecture or incident reasoning. |
@@ -73,6 +77,8 @@ or from inside the harness repo:
 ```
 
 The check should confirm whether `claude`, `codex`, `agy`, and the configured LiteLLM routes are reachable. Treat CLI version checks as advisory: authentication can still fail at task runtime.
+
+Also check this file for owner-declared temporary availability overrides. A CLI can be installed and still be operationally unavailable because of subscription or weekly plan limits.
 
 ## Guardrails
 

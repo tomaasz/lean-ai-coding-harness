@@ -10,6 +10,8 @@ Role: orchestrator and verifier.
 
 Cost/routing rule for this setup: prefer subscription-backed coding/research CLIs when they fit the task before spending per-token LiteLLM API keys. Claude Code, Codex CLI, and Antigravity CLI are paid through the owner's subscriptions/plan limits; BaishanAI and DeepSeek via LiteLLM are billed per token.
 
+Temporary availability override: the owner's Claude weekly limit is currently exhausted until the next Wednesday at 17:00. Until the owner says the limit has reset, treat Claude Code as operationally unavailable even if `claude` is installed. Prefer Codex CLI for implementation/review, Antigravity CLI (`agy`) for research, and DeepSeek/BaishanAI only when a per-token route is justified.
+
 Use Hermes for:
 - Breaking down tasks
 - Reading and editing small files directly
@@ -22,6 +24,8 @@ Use Hermes for:
 ### Claude Code
 
 Role: primary implementation agent.
+
+Current availability: temporarily unavailable because the owner's Claude weekly limit is exhausted until the next Wednesday at 17:00. Do not choose Claude Code during this window unless the owner explicitly forces it or confirms the limit has reset.
 
 Use Claude Code for:
 - Multi-file changes
@@ -99,7 +103,7 @@ For important changes:
 
 1. Hermes inspects repo and writes/updates a plan in `process/plans/`.
 2. If the task needs external knowledge, Hermes may ask `agy` for a research brief and save the distilled result in `process/research/`.
-3. Claude Code implements the change.
+3. The best available implementation lane makes the change: normally Claude Code or Codex CLI, but use Codex CLI while the temporary Claude limit override is active.
 4. Hermes checks `git diff`, runs tests, and fixes simple issues.
 5. Codex reviews the diff independently.
 6. Hermes decides whether to apply review findings.
